@@ -1,7 +1,12 @@
 import test, { expect } from "@playwright/test";
 import LoginPage from "../pages/LoginPage";
-import {standard_user, locked_out_user, not_existing_user} from "../utils/testData" 
+import {standard_user, locked_out_user, not_existing_user, visual_user, performance_glitch_user} from "../utils/testData" 
 import InventoryPage from "../pages/InventoryPage";
+
+// parametryzacja
+// test.step()
+
+const users = [standard_user, visual_user, performance_glitch_user]
 
 test.describe('Login tests', () => { 
     
@@ -14,11 +19,14 @@ test.describe('Login tests', () => {
         await loginPage.goto();
     })
 
-    test('successful login with standard_user', async ({page}) => {
-        await loginPage.loginWithUser(standard_user);
-        await expect(await inventoryPage.getProductsSpanHeader()).toBeVisible();
-        await expect(page).toHaveURL('inventory.html');
-    });
+    for (let user of users) {
+        test(`successful login with ${user.email}`, async ({page}) => {
+            await loginPage.loginWithUser(user);
+            await expect(await inventoryPage.getProductsSpanHeader()).toBeVisible();
+            await expect(page).toHaveURL('inventory.html');
+        });
+    }
+
 
     test('unsuccessful login with locked_out_user', async ({page}) => {
         await loginPage.loginWithUser(locked_out_user);
@@ -42,14 +50,3 @@ test.describe('Login tests', () => {
 
 // przechwyć request /inventory
 // zwróć fake dane
-
-
-// 6. 🔁 Retry + flaky test
-// test('flaky test', async ({ page }) => {
-//   expect(Math.random()).toBeGreaterThan(0.3);
-// });
-
-
-// 7. ⏱️ Waits i async
-
-// waitForResponse
